@@ -1,0 +1,124 @@
+--1
+--a) The SQL server is for backward compatibility. This is the reason there is Windows Authentication.
+--The benefit of Windows Authentication is that it is more secure.
+--b) Authentication is to verify a user or a service in which is trying to connect to the server.
+-- Authorization is to see what access the user has for the system or database.
+--c) Yes it can.
+--d) The access is in confidential and important data. Leaked info and getting hacked is a possibility 
+-- since they have access to important information. 
+
+--2
+-- Bowling Database
+USE [BowlingLeagueModify]
+GO
+CREATE SCHEMA [people]
+GO
+CREATE SCHEMA [games]
+GO
+
+SELECT 'ALTER SCHEMA people TRANSFER' + name + ';' from sys.tables;
+ALTER SCHEMA people TRANSFER Bowlers;
+GO 
+ALTER SCHEMA people TRANSFER Teams;
+Go
+
+SELECT 'ALTER SCHEMA games TRANSFER' + name + ';' from sys.tables;
+GO
+ALTER SCHEMA games TRANSFER Match_Games;
+GO
+
+--school database
+USE [SchoolSchedulingModify]
+GO
+CREATE SCHEMA [faculty]
+GO
+CREATE SCHEMA [student]
+GO
+
+SELECT 'ALTER SCHEMA faculty TRANSFER' + name + ';' from sys.tables;
+ALTER SCHEMA faculty TRANSFER Faculty;
+GO 
+ALTER SCHEMA faculty TRANSFER Faculty_Categories;
+Go
+ALTER SCHEMA faculty TRANSFER Faculty_Classes;
+Go
+ALTER SCHEMA faculty TRANSFER Faculty_Subjects;
+Go
+
+SELECT 'ALTER SCHEMA student TRANSFER' + name + ';' from sys.tables;
+GO
+ALTER SCHEMA student TRANSFER Student_Class_Status;
+GO
+ALTER SCHEMA student TRANSFER Student_Schedules;
+GO
+ALTER SCHEMA student TRANSFER Students;
+GO
+
+--new logins
+USE [master]
+GO
+CREATE LOGIN [Scarlett_witch] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+USE [BowlingLeagueModify]
+GO
+CREATE USER [Scarlett_witch] FOR LOGIN [Scarlett_witch]
+GO
+USE [BowlingLeagueModify]
+GO
+ALTER ROLE [db_ddladmin] ADD MEMBER [Scarlett_witch]
+
+--3
+USE [SchoolSchedulingModify]
+GO
+CREATE ROLE [super_hero]
+GO
+
+USE [SchoolSchedulingModify]
+GO
+GRANT SELECT ON [faculty].[Faculty] to [super_hero]
+GRANT SELECT ON [faculty].[Faculty_Categories] to [super_hero]
+GRANT SELECT ON [faculty].[Faculty_Classes] to [super_hero]
+GRANT SELECT ON [faculty].[Faculty_Subjects] to [super_hero]
+GO
+
+USE [master]
+GO
+CREATE LOGIN [Captain_america] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+USE [SchoolSchedulingModify]
+GO
+CREATE USER [Captain_america] FOR LOGIN [Captain_america]
+GO
+USE [SchoolSchedulingModify]
+GO
+ALTER ROLE [super_hero] ADD MEMBER [Captain_america]
+GO
+
+USE [master]
+GO
+CREATE LOGIN [Black_widow] WITH PASSWORD=N'password', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+USE [SchoolSchedulingModify]
+GO
+CREATE USER [Black_widow] FOR LOGIN [Black_widow]
+GO
+USE [SchoolSchedulingModify]
+GO
+ALTER ROLE [super_hero] ADD MEMBER [Black_widow]
+GO
+
+--4
+USE SchoolSchedulingModify;
+SELECT c.name column_name, t.name table_name, is_nullable
+FROM sys.all_columns c
+JOIN sys.table_tables t
+ON c.object_id = t.object_id
+WHERE is_nullable = 1;
+
+USE BowlingLeagueExample
+SELECT * FROM sys.schemas;
+
+USE SchoolSchedulingModify
+SELECT class_desc, type, permission_name
+FROM sys.server_permissions
+WHERE class_desc = 'endpoint';
